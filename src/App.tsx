@@ -1,41 +1,66 @@
-import { GitHubBanner, Refine, WelcomePage } from "@refinedev/core";
-import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
+import { Refine } from '@refinedev/core';
+import {
+    notificationProvider,
+    ErrorComponent,
+    ThemedLayout,
+} from '@refinedev/antd';
+import routerProvider, { NavigateToResource } from '@refinedev/react-router-v6';
+import dataProvider from '@refinedev/simple-rest';
 
-import { notificationProvider } from "@refinedev/antd";
-import "@refinedev/antd/dist/reset.css";
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 
-import routerBindings, {
-  UnsavedChangesNotifier,
-} from "@refinedev/react-router-v6";
-import dataProvider from "@refinedev/simple-rest";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { ColorModeContextProvider } from "./contexts/color-mode";
+//import { AntdInferencer } from '@refinedev/inferencer/antd';
 
-function App() {
-  return (
-    <BrowserRouter>
-      <GitHubBanner />
-      <RefineKbarProvider>
-        <ColorModeContextProvider>
-          <Refine
-            notificationProvider={notificationProvider}
-            routerProvider={routerBindings}
-            dataProvider={dataProvider("https://api.fake-rest.refine.dev")}
-            options={{
-              syncWithLocation: true,
-              warnWhenUnsavedChanges: true,
-            }}
-          >
-            <Routes>
-              <Route index element={<WelcomePage />} />
-            </Routes>
-            <RefineKbar />
-            <UnsavedChangesNotifier />
-          </Refine>
-        </ColorModeContextProvider>
-      </RefineKbarProvider>
-    </BrowserRouter>
-  );
-}
+import '@refinedev/antd/dist/reset.css';
+import { ToDoCreate, ToDoEdit, ToDoList, ToDoShow } from 'pages';
+
+const App: React.FC = () => {
+    return (
+        <BrowserRouter>
+            <Refine
+                routerProvider={routerProvider}
+                dataProvider={dataProvider('https://api.fake-rest.refine.dev')}
+                notificationProvider={notificationProvider}
+                resources={[
+                    {
+                        name: 'landing',
+                        list: ToDoList,
+                        show: ToDoShow,
+                        create: ToDoCreate,
+                        edit: ToDoEdit,
+                        meta: { canDelete: true },
+                    },
+                    
+                ]}
+            >
+                <Routes>
+                    <Route
+                        element={
+                            <ThemedLayout>
+                                <Outlet />
+                            </ThemedLayout>
+                        }
+                    >
+                        <Route index element={<NavigateToResource />} />
+                        <Route path="landing">
+                            <Route index element={<ToDoList />} />
+                            <Route
+                                path="show/:id"
+                                element={<ToDoShow />}
+                            />
+                            <Route path="create" element={<ToDoCreate />} />
+                            <Route
+                                path="edit/:id"
+                                element={<ToDoEdit />}
+                            />
+                        </Route>
+                        
+                        <Route path="*" element={<ErrorComponent />} />
+                    </Route>
+                </Routes>
+            </Refine>
+        </BrowserRouter>
+    );
+};
 
 export default App;

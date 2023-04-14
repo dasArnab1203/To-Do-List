@@ -29,6 +29,7 @@
     "web-vitals": "^1.1.1"
   },
   "scripts": {
+    "start": "react-scripts start",
     "dev": "refine start",
     "build": "refine build",
     "test": "react-scripts test",
